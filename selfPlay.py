@@ -62,13 +62,13 @@ def main():
         if halfMoveCounter % 2 != playerWhite:
             print("Thinking...")
             bestMove = computerMove(board)
-            move, eval = bestMove[0], bestMove[1]
-            print("The computer played", move, "with an evaluation of", eval)
+            move, bestEval, playedEval = bestMove[0], bestMove[1], bestMove[2]
+            print(f"The computer played {move} ({playedEval}) with an evaluation of {bestEval}")
         else:
             print("Thinking...")
             bestMove = computerMove(board)
-            move, eval = bestMove[0], bestMove[1]
-            print("The computer played", move, "with an evaluation of", eval)
+            move, bestEval, playedEval = bestMove[0], bestMove[1], bestMove[2]
+            print(f"The computer played {move} ({playedEval}) with an evaluation of {bestEval}")
         if "+" in move or "#" in move:
             sound = checkSound
         elif "x" in move:

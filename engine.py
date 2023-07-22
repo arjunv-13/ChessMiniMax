@@ -3,8 +3,20 @@ from eval import evalBoard
 import random
 
 DEPTH = 3
-CAPTURE_SEARCH = 1
-VARIANCE = 0.001
+CAPTURE_SEARCH = 3
+VARIANCE = 0.1
+
+def order_moves(board):
+    lm = board.legal_moves
+    special = []
+    normal = []
+    for move in lm:
+        if board.is_capture(move) or board.gives_check(move):
+            special.append(move)
+        else:
+            normal.append(move)
+    return special + normal
+
 
 def viewTree(root, max_depth, depth, file):
     if depth == max_depth:
@@ -109,11 +121,11 @@ def search(board, depth, root, alpha, beta):
             root.eval = 0
     else:
         turn = not board.turn
-        lm = board.legal_moves
+        lm = order_moves(board)
         if turn:
             min_eval = float("inf")
             for x in lm:
-                move = str(chess.Move.from_uci(str(x)))         
+                move = str(x)         
                 board.push(x)
                 evaluation = evalBoard(board) if depth == 1 else 0
                 next = moveNode(move, evaluation, turn, board)
@@ -122,13 +134,13 @@ def search(board, depth, root, alpha, beta):
                 board.pop()
                 min_eval = min(min_eval, next.eval)
                 beta = min(beta, min_eval)
-                #if beta <= alpha:
-                #    break
+                if beta <= alpha:
+                    break
                 
         else:
             max_eval = float("-inf")
             for x in lm:
-                move = str(chess.Move.from_uci(str(x)))         
+                move = str(x)       
                 board.push(x)
                 evaluation = evalBoard(board) if depth == 1 else 0
                 next = moveNode(move, evaluation, turn, board)
@@ -137,8 +149,8 @@ def search(board, depth, root, alpha, beta):
                 board.pop()
                 max_eval = max(max_eval, next.eval)
                 alpha = max(alpha, max_eval)
-                #if beta <= alpha:
-                #   break
+                if beta <= alpha:
+                   break
                 
         root.calcEval()
     if start:
@@ -148,13 +160,29 @@ def search(board, depth, root, alpha, beta):
         return root.eval
 
 def findBestMove(board):
+    winning_move = None
+    for move in board.legal_moves:
+        board.push(move)
+        if board.is_checkmate():
+            winning_move = str(move)
+            board.pop()
+            break
+        board.pop()
+    
+    if winning_move:
+        if board.turn:
+            return [winning_move, 1000, 1000]
+        else:
+            return [winning_move, -1000, -1000]
+            
+
     treeRoot = search(board, DEPTH, None, float("-inf"), float("inf"))
-    f = open("myfile.txt", "w") 
-    viewTree(treeRoot, 4, 0, f)
-    f.close
+    #f = open("myfile.txt", "w") 
+    #viewTree(treeRoot, 4, 0, f)
+    #f.close
     bestMoves = []
     for child in treeRoot.children:
         if -VARIANCE < (child.eval - treeRoot.eval) < VARIANCE:
-            bestMoves.append([child.move, treeRoot.eval])
+            bestMoves.append([child.move, treeRoot.eval, child.eval])
     return random.choice(bestMoves)
 

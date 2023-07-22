@@ -1,6 +1,7 @@
 import pygame as pg
 import chess
-from noTreeEngine import findBestMove
+#from noTreeEngine import findBestMove
+from engine import findBestMove
 from board import printBoard
 import time
 
@@ -66,8 +67,8 @@ def main():
         else:
             print("Thinking...")
             bestMove = computerMove(board)
-            move, eval = bestMove[0], bestMove[1]
-            print("The computer played", move, "with an evaluation of", eval)
+            move, bestEval, playedEval = bestMove[0], bestMove[1], bestMove[2]
+            print(f"The computer played {move} ({playedEval}) with an evaluation of {bestEval}")
         halfMoveCounter += 1
         if "+" in move or "#" in move:
             sound = checkSound

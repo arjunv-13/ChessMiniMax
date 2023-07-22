@@ -62,9 +62,9 @@ def main():
     while not board.is_game_over():
         print("Thinking...")
         bestMove = computerMove(board)
-        move, eval = bestMove[0], bestMove[1]
-        print("The computer played", move, "with an evaluation of", eval)
-        game.append([move, eval])
+        move, bestEval, playedEval = bestMove[0], bestMove[1], bestMove[2]
+        print(f"The computer played {move} ({playedEval}) with an evaluation of {bestEval}")
+        game.append([move, playedEval])
         halfMoveCounter += 1
     print(f"Game calculated with {halfMoveCounter} ply or {halfMoveCounter/2} moves")
     

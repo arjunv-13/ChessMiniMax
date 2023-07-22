@@ -2,8 +2,8 @@ import chess
 from eval import evalBoard
 import random
 
-DEPTH = 3
-CAPTURE_SEARCH = 1
+DEPTH = 1
+CAPTURE_SEARCH = 0
 VARIANCE = .1
 
 def capture_quiescence_search(board, max_depth):
