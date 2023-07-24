@@ -1,10 +1,13 @@
 import chess
-from eval import evalBoard
+from evalOpening import evalOpening
+from evalMiddlegame import evalMiddlegame
+from evalEndgame import evalEndgame
 import random
 
 DEPTH = 3
 CAPTURE_SEARCH = 3
 VARIANCE = 0.1
+evalBoard = evalOpening
 
 def order_moves(board):
     lm = board.legal_moves
@@ -127,14 +130,14 @@ def search(board, depth, root, alpha, beta):
             for x in lm:
                 move = str(x)         
                 board.push(x)
-                evaluation = evalBoard(board) if depth == 1 else 0
+                evaluation = evalBoard(board)# if depth == 1 else 0
                 next = moveNode(move, evaluation, turn, board)
                 root.addChild(next)
                 (search(board, depth - 1, next, alpha, beta))
                 board.pop()
                 min_eval = min(min_eval, next.eval)
                 beta = min(beta, min_eval)
-                if beta <= alpha:
+                if beta + VARIANCE <= alpha:
                     break
                 
         else:
@@ -149,7 +152,7 @@ def search(board, depth, root, alpha, beta):
                 board.pop()
                 max_eval = max(max_eval, next.eval)
                 alpha = max(alpha, max_eval)
-                if beta <= alpha:
+                if beta + VARIANCE <= alpha:
                    break
                 
         root.calcEval()
@@ -159,7 +162,18 @@ def search(board, depth, root, alpha, beta):
     else:
         return root.eval
 
-def findBestMove(board):
+def findBestMove(board, ply):
+    global evalBoard
+    num_pieces = len(board.piece_map())
+    if ply < 20 or num_pieces > 24:
+        print("opening")
+        evalBoard = evalOpening
+    elif ply < 50 or num_pieces > 14:
+        print("mid")
+        evalBoard = evalMiddlegame
+    else:
+        print("end")
+        evalBoard = evalEndgame
     winning_move = None
     for move in board.legal_moves:
         board.push(move)
@@ -177,9 +191,9 @@ def findBestMove(board):
             
 
     treeRoot = search(board, DEPTH, None, float("-inf"), float("inf"))
-    #f = open("myfile.txt", "w") 
-    #viewTree(treeRoot, 4, 0, f)
-    #f.close
+    f = open("myfile.txt", "w") 
+    viewTree(treeRoot, 4, 0, f)
+    f.close
     bestMoves = []
     for child in treeRoot.children:
         if -VARIANCE < (child.eval - treeRoot.eval) < VARIANCE:

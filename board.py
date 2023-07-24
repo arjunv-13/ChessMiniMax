@@ -1,6 +1,6 @@
 import pygame as pg
 import time
-from eval import toArray
+from evalOpening import toArray
 import chess
 
 WIDTH, HEIGHT = 750, 750

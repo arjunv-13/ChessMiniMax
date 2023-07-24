@@ -1,5 +1,5 @@
 import chess
-from eval import evalBoard
+from evalOpening import evalBoard
 import random
 
 DEPTH = 1

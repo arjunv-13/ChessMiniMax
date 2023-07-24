@@ -32,8 +32,8 @@ def chooseColor():
             valid = True
     return white
 
-def computerMove(board):
-    bestMove = findBestMove(board)
+def computerMove(board, ply):
+    bestMove = findBestMove(board, ply)
     standard = board.san(board.parse_uci(bestMove[0]))
     board.push_san(bestMove[0])
     bestMove[0] = standard
@@ -66,7 +66,7 @@ def main():
             move = playerMove(board)
         else:
             print("Thinking...")
-            bestMove = computerMove(board)
+            bestMove = computerMove(board, halfMoveCounter)
             move, bestEval, playedEval = bestMove[0], bestMove[1], bestMove[2]
             print(f"The computer played {move} ({playedEval}) with an evaluation of {bestEval}")
         halfMoveCounter += 1
