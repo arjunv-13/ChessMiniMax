@@ -4,7 +4,8 @@ from evalMiddlegame import evalMiddlegame
 from evalEndgame import evalEndgame
 import random
 
-DEPTH = 3
+MIN_DEPTH = 3
+DEPTH = MIN_DEPTH
 CAPTURE_SEARCH = 3
 VARIANCE = 0.1
 evalBoard = evalOpening
@@ -164,16 +165,18 @@ def search(board, depth, root, alpha, beta):
 
 def findBestMove(board, ply):
     global evalBoard
+    global DEPTH
     num_pieces = len(board.piece_map())
     if ply < 20 or num_pieces > 24:
-        print("opening")
         evalBoard = evalOpening
     elif ply < 50 or num_pieces > 14:
-        print("mid")
         evalBoard = evalMiddlegame
-    else:
-        print("end")
+    elif num_pieces > 6:
+        DEPTH = MIN_DEPTH + 1
         evalBoard = evalEndgame
+    else:
+        evalBoard = evalEndgame
+        DEPTH = MIN_DEPTH + 2
     winning_move = None
     for move in board.legal_moves:
         board.push(move)
@@ -197,6 +200,6 @@ def findBestMove(board, ply):
     bestMoves = []
     for child in treeRoot.children:
         if -VARIANCE < (child.eval - treeRoot.eval) < VARIANCE:
-            bestMoves.append([child.move, treeRoot.eval, child.eval])
+            bestMoves.append([child.move, round(treeRoot.eval, 3), round(child.eval, 3)])
     return random.choice(bestMoves)
 
