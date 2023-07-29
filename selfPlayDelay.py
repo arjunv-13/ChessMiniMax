@@ -1,6 +1,6 @@
 import pygame as pg
 import chess
-from engine import findBestMove
+from engine import findBestMove, setDepth
 from board import printBoard
 import time
 
@@ -51,6 +51,7 @@ def playerMove(board):
 def main():
     board = chess.Board()
     halfMoveCounter = 0
+    setDepth()
 
     time.sleep(1.5)
 

@@ -6,7 +6,7 @@ import random
 
 MIN_DEPTH = 3
 DEPTH = MIN_DEPTH
-CAPTURE_SEARCH = 3
+CAPTURE_SEARCH = 2
 VARIANCE = 0.1
 evalBoard = evalOpening
 
@@ -21,6 +21,33 @@ def order_moves(board):
             normal.append(move)
     return special + normal
 
+
+def setDepth():
+    global MIN_DEPTH
+    MIN_DEPTH = 0
+    print("Before the game, input some engine parameters.\nFirst, the number of ply that the computer should search. It should be from 1 to 5, inclusive. For best balance, select 3.\n")
+    while MIN_DEPTH < 1 or MIN_DEPTH > 5:
+        try:
+            MIN_DEPTH = int(input("Enter the starting normal depth: "))
+            DEPTH = MIN_DEPTH
+        except:
+            pass
+    global CAPTURE_SEARCH
+    CAPTURE_SEARCH = -1
+    print("\n\nNext, the capture quiescence search depth. This should be from 0 to 4 inclusive with 3 being a good balance.\n")
+    while CAPTURE_SEARCH < 0 or CAPTURE_SEARCH > 4:
+        try:
+            CAPTURE_SEARCH = int(input("Enter the capture search depth: "))
+        except:
+            pass
+    global VARIANCE
+    VARIANCE = 0
+    print("\n\nNext, the evaluation variance to use when selecting moves. This is the max difference from the best evaluation that the computer will use to select moves. Evaluations are in terms of pawns, so it can be any decimal between 0.01 and 5. 0.1 or 0.2 is recommended for a balance between variability and strength.\n")
+    while VARIANCE < 0.01 or VARIANCE > 5:
+        try:
+            VARIANCE = float(input("Enter the desired eval variance when selecting moves: "))
+        except:
+            pass        
 
 def viewTree(root, max_depth, depth, file):
     if depth == max_depth:
@@ -194,9 +221,9 @@ def findBestMove(board, ply):
             
 
     treeRoot = search(board, DEPTH, None, float("-inf"), float("inf"))
-    f = open("myfile.txt", "w") 
-    viewTree(treeRoot, 4, 0, f)
-    f.close
+    #f = open("myfile.txt", "w") 
+    #viewTree(treeRoot, 4, 0, f)
+    #f.close
     bestMoves = []
     for child in treeRoot.children:
         if -VARIANCE < (child.eval - treeRoot.eval) < VARIANCE:

@@ -1,6 +1,6 @@
 import pygame as pg
 import chess
-from engine import findBestMove
+from engine import findBestMove, setDepth
 #from noTreeEngine import findBestMove
 from board import printBoard
 import time
@@ -55,6 +55,7 @@ def main():
 
     playerWhite = True
     time.sleep(1.5)
+    setDepth()
 
     while not board.is_game_over():
         printBoard(WIN, board)
