@@ -2,7 +2,7 @@ import pygame as pg
 import chess
 #from noTreeEngine import findBestMove
 from engine import findBestMove, setDepth
-from board import printBoard
+from board import printBoard, playerMoveGUI
 import time
 
 
@@ -64,7 +64,8 @@ def main():
         printBoard(WIN, board)
         
         if halfMoveCounter % 2 != playerWhite:
-            move = playerMove(board)
+            move = playerMoveGUI(board, WIN)
+            board.push_san(move)
         else:
             print("Thinking...")
             bestMove = computerMove(board, halfMoveCounter)
