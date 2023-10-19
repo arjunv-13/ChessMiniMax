@@ -33,7 +33,7 @@ def chooseColor():
     return white
 
 def computerMove(board, ply):
-    bestMove = findBestMove(board, ply)
+    bestMove = findBestMove(board)
     standard = board.san(board.parse_uci(bestMove[0]))
     board.push_san(bestMove[0])
     bestMove[0] = standard

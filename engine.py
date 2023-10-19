@@ -190,9 +190,10 @@ def search(board, depth, root, alpha, beta):
     else:
         return root.eval
 
-def findBestMove(board, ply):
+def findBestMove(board):
     global evalBoard
     global DEPTH
+    ply = board.fullmove_number/2
     num_pieces = len(board.piece_map())
     if ply < 20 or num_pieces > 24:
         evalBoard = evalOpening
