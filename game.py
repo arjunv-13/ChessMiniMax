@@ -1,8 +1,8 @@
 import pygame as pg
 import chess
 #from noTreeEngine import findBestMove
-from engine import findBestMove, setDepth
-from board import printBoard, playerMoveGUI
+from engine import findBestMove, setDepthReturn
+from board import printBoard, playerMoveGUI, playMoveSound, printCheckmate
 import time
 
 
@@ -32,8 +32,9 @@ def chooseColor():
             valid = True
     return white
 
-def computerMove(board, ply):
-    bestMove = findBestMove(board)
+def computerMove(board, main_depth, capture_search_depth, augment_depth, variance):
+    printBoard(WIN, board)
+    bestMove = findBestMove(board, main_depth, capture_search_depth, augment_depth, variance)
     standard = board.san(board.parse_uci(bestMove[0]))
     board.push_san(bestMove[0])
     bestMove[0] = standard
@@ -55,10 +56,9 @@ def main():
     board = chess.Board()
     halfMoveCounter = 0
     printBoard(WIN, board)
-    setDepth()
+    main_depth, capture_depth, variance = setDepthReturn()
 
     playerWhite = chooseColor()
-
 
     while not board.is_game_over():
         printBoard(WIN, board)
@@ -68,23 +68,13 @@ def main():
             board.push_san(move)
         else:
             print("Thinking...")
-            bestMove = computerMove(board, halfMoveCounter)
+            bestMove = computerMove(board, main_depth, capture_depth, True, variance)
             move, bestEval, playedEval = bestMove[0], bestMove[1], bestMove[2]
             print(f"The computer played {move} ({playedEval}) with an evaluation of {bestEval}")
         halfMoveCounter += 1
-        if "+" in move or "#" in move:
-            sound = checkSound
-        elif "x" in move:
-            sound = captureSound
-        elif "O" in move:
-            sound = castleSound
-        elif "=" in move:
-            sound = promoteSound
-        else:
-            sound = normalSound
-        pg.mixer.Sound.play(sound)
-        pg.mixer.music.stop()
+        playMoveSound(move)
     printBoard(WIN, board)
+    printCheckmate(WIN, board)
     print("Game Over")
     print("Result:", board.result())
     time.sleep(2)

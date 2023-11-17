@@ -4,9 +4,9 @@ from evalMiddlegame import evalMiddlegame
 from evalEndgame import evalEndgame
 import random
 
-MIN_DEPTH = 3
+MIN_DEPTH = 1
 DEPTH = MIN_DEPTH
-CAPTURE_SEARCH = 2
+CAPTURE_SEARCH = 1
 VARIANCE = 0.1
 evalBoard = evalOpening
 
@@ -47,7 +47,32 @@ def setDepth():
         try:
             VARIANCE = float(input("Enter the desired eval variance when selecting moves: "))
         except:
-            pass        
+            pass    
+
+def setDepthReturn():
+    min_depth = 0
+    print("Before the game, input some engine parameters.\nFirst, the number of ply that the computer should search. It should be from 1 to 5, inclusive. For best balance, select 3.\n")
+    while min_depth < 1 or min_depth > 5:
+        try:
+            min_depth = int(input("Enter the starting normal depth: "))
+        except:
+            pass
+    capture_search_depth = -1
+    print("\n\nNext, the capture quiescence search depth. This should be from 0 to 4 inclusive with 3 being a good balance.\n")
+    while capture_search_depth < 0 or capture_search_depth > 4:
+        try:
+            capture_search_depth = int(input("Enter the capture search depth: "))
+        except:
+            pass
+    variance = 0
+    print("\n\nNext, the evaluation variance to use when selecting moves. This is the max difference from the best evaluation that the computer will use to select moves. Evaluations are in terms of pawns, so it can be any decimal between 0.01 and 5. 0.1 or 0.2 is recommended for a balance between variability and strength.\n")
+    while variance < 0.01 or variance > 5:
+        try:
+            variance = float(input("Enter the desired eval variance when selecting moves: "))
+        except:
+            pass
+
+    return min_depth, capture_search_depth, variance           
 
 def viewTree(root, max_depth, depth, file):
     if depth == max_depth:
@@ -101,9 +126,7 @@ def capture_quiescence_search(board, root, max_depth):
                 captures.append(move)
         if not captures:
             root.eval = evalBoard(board)
-            #print("No captures")
             return
-        #print(captures)
         turn = not board.turn
         if turn:
             for x in captures:         
@@ -132,10 +155,10 @@ def capture_quiescence_search(board, root, max_depth):
     return
 
 
-def search(board, depth, root, alpha, beta):   
+def search(board, depth, root, alpha, beta, capture_search_depth):   
 
     if depth == 0:
-        return capture_quiescence_search(board, root, CAPTURE_SEARCH)
+        return capture_quiescence_search(board, root, capture_search_depth)
     if not root:
         start = True
         root = moveNode(None, 0, board.turn, board)
@@ -161,7 +184,7 @@ def search(board, depth, root, alpha, beta):
                 evaluation = evalBoard(board)# if depth == 1 else 0
                 next = moveNode(move, evaluation, turn, board)
                 root.addChild(next)
-                (search(board, depth - 1, next, alpha, beta))
+                search(board, depth - 1, next, alpha, beta, capture_search_depth)
                 board.pop()
                 min_eval = min(min_eval, next.eval)
                 beta = min(beta, min_eval)
@@ -176,7 +199,7 @@ def search(board, depth, root, alpha, beta):
                 evaluation = evalBoard(board) if depth == 1 else 0
                 next = moveNode(move, evaluation, turn, board)
                 root.addChild(next)
-                (search(board, depth - 1, next, alpha, beta))
+                search(board, depth - 1, next, alpha, beta, capture_search_depth)
                 board.pop()
                 max_eval = max(max_eval, next.eval)
                 alpha = max(alpha, max_eval)
@@ -190,9 +213,7 @@ def search(board, depth, root, alpha, beta):
     else:
         return root.eval
 
-def findBestMove(board):
-    global evalBoard
-    global DEPTH
+def findBestMove(board, main_depth, capture_search_depth, augment_depth, variance):
     ply = board.fullmove_number/2
     num_pieces = len(board.piece_map())
     if ply < 20 or num_pieces > 24:
@@ -200,11 +221,13 @@ def findBestMove(board):
     elif ply < 50 or num_pieces > 14:
         evalBoard = evalMiddlegame
     elif num_pieces > 6:
-        DEPTH = MIN_DEPTH + 1
+        if augment_depth:
+            main_depth += 1
         evalBoard = evalEndgame
     else:
         evalBoard = evalEndgame
-        DEPTH = MIN_DEPTH + 2
+        if augment_depth:
+            main_depth += 2
     winning_move = None
     for move in board.legal_moves:
         board.push(move)
@@ -221,13 +244,10 @@ def findBestMove(board):
             return [winning_move, -1000, -1000]
             
 
-    treeRoot = search(board, DEPTH, None, float("-inf"), float("inf"))
-    #f = open("myfile.txt", "w") 
-    #viewTree(treeRoot, 4, 0, f)
-    #f.close
+    treeRoot = search(board, main_depth, None, float("-inf"), float("inf"), capture_search_depth)
     bestMoves = []
     for child in treeRoot.children:
-        if -VARIANCE < (child.eval - treeRoot.eval) < VARIANCE:
+        if -variance < (child.eval - treeRoot.eval) < variance:
             bestMoves.append([child.move, round(treeRoot.eval, 3), round(child.eval, 3)])
     return random.choice(bestMoves)
 

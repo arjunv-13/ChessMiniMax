@@ -9,6 +9,9 @@ BLACK = (0, 0, 0)
 LIGHT = (242, 232, 218)
 DARK = (128, 128, 128)
 RED = (255, 0, 0)
+LIGHTRED = (255, 200, 200)
+
+ROYALBLUE =  (65, 105, 225)
 GREEN = (52, 178, 52)
 
 board = chess.Board()
@@ -56,9 +59,69 @@ def draw_pieces(window, board):
 def printBoard(window, board, highlighted=[]):
     draw_window(window)
     draw_highlights(window, highlighted)
+    draw_prev_move(window, board)
     draw_pieces(window, board)
     pg.display.update()
 
+def printCheckmate(window, board):
+    winner = board.result()
+    if winner == "1-0":
+        isWhite = True
+    elif winner == "0-1":
+        isWhite = False
+    else:
+        return
+    draw_window(window)
+    draw_prev_move(window, board)
+    
+    for square in chess.SQUARES:
+        piece = board.piece_at(square)
+        if piece is not None and piece.piece_type == chess.KING and piece.color != isWhite:
+            king = chess.square_name(square)
+    box_width = (WIDTH - 30)/8
+    box_height = (HEIGHT - 30)/8
+    x = (ord(king[0]) - 97) * box_width + 15
+    y = HEIGHT - (int(king[1]) * box_height + 15)
+    pg.draw.rect(window, LIGHTRED, pg.Rect(x, y, box_width, box_height),  0)
+    draw_pieces(window, board)
+    font = pg.font.SysFont(None, 80)
+    text = font.render("Checkmate!", True, RED)
+    window.blit(text, (WIDTH/2 - text.get_width()/2, HEIGHT/2 - text.get_height()/2))
+    pg.display.update()
+    time.sleep(2)
+
+
+def playMoveSound(move):
+    normalSound = pg.mixer.Sound("chessPieces/move.mp3")
+    captureSound = pg.mixer.Sound("chessPieces/capture.mp3")
+    castleSound = pg.mixer.Sound("chessPieces/castle.mp3")
+    promoteSound = pg.mixer.Sound("chessPieces/promote.mp3")
+    checkSound = pg.mixer.Sound("chessPieces/check.mp3")
+    if "+" in move or "#" in move:
+            sound = checkSound
+    elif "x" in move:
+        sound = captureSound
+    elif "O" in move:
+        sound = castleSound
+    elif "=" in move:
+        sound = promoteSound
+    else:
+        sound = normalSound
+    pg.mixer.Sound.play(sound)
+    pg.mixer.music.stop()
+
+
+def draw_prev_move(window, board):
+    if not board.move_stack:
+        return
+    uci_move = board.peek().uci()
+    squares = [uci_move[:2], uci_move[2:4]]
+    box_width = (WIDTH - 30)/8
+    box_height = (HEIGHT - 30)/8
+    for square in squares:
+        x = (ord(square[0]) - 97) * box_width + 15
+        y = HEIGHT - (int(square[1]) * box_height + 15)
+        pg.draw.rect(window, ROYALBLUE, pg.Rect(x, y, box_width, box_height),  0)
 
 def draw_highlights(window, highlights):
     box_width = (WIDTH - 30)/8
@@ -144,6 +207,7 @@ def playerMoveGUI(board, window):
     while True:
         clock.tick(FPS)
         draw_window(window)
+        draw_prev_move(window, board)
         draw_pieces(window, board)
         draw_highlights(window, selected)
         drawLegalMoves(window, selected_possible_moves)         
