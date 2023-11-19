@@ -12,6 +12,9 @@ RED = (255, 0, 0)
 LIGHTRED = (255, 200, 200)
 
 ROYALBLUE =  (65, 105, 225)
+ROYALBLUE2 = (45, 85, 205)
+START_SQUARE_COLOR = (14, 101, 160)
+END_SQUARE_COLOR = (109, 172, 207)
 GREEN = (52, 178, 52)
 
 board = chess.Board()
@@ -118,10 +121,15 @@ def draw_prev_move(window, board):
     squares = [uci_move[:2], uci_move[2:4]]
     box_width = (WIDTH - 30)/8
     box_height = (HEIGHT - 30)/8
+    i = 0
+    color = START_SQUARE_COLOR
     for square in squares:
+        if i == 1:
+            color = END_SQUARE_COLOR
         x = (ord(square[0]) - 97) * box_width + 15
         y = HEIGHT - (int(square[1]) * box_height + 15)
-        pg.draw.rect(window, ROYALBLUE, pg.Rect(x, y, box_width, box_height),  0)
+        pg.draw.rect(window, color, pg.Rect(x, y, box_width, box_height),  0)
+        i += 1
 
 def draw_highlights(window, highlights):
     box_width = (WIDTH - 30)/8

@@ -1,4 +1,5 @@
 import chess
+import chess.polyglot
 from evalOpening import evalOpening
 from evalMiddlegame import evalMiddlegame
 from evalEndgame import evalEndgame
@@ -214,6 +215,11 @@ def search(board, depth, root, alpha, beta, capture_search_depth):
         return root.eval
 
 def findBestMove(board, main_depth, capture_search_depth, augment_depth, variance):
+    with chess.polyglot.open_reader("./openings/baron30.bin") as reader:
+        l = [entry for entry in reader.find_all(board)]
+    if l:
+        print("Opening found!")
+        return [str(random.choice(l).move), 0, 0]
     ply = board.fullmove_number/2
     num_pieces = len(board.piece_map())
     if ply < 20 or num_pieces > 24:

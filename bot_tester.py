@@ -23,7 +23,7 @@ def findBestMove_Arjun_depth3(board):
     return board.parse_uci(engine.findBestMove(board, 3, 2, False, 0.1)[0])
 
 def findBestMove_Arjun_depth2(board):
-    return board.parse_uci(engine.findBestMove(board, 1, 1, True, 0.1)[0])
+    return board.parse_uci(engine.findBestMove(board, 2, 2, True, 0.1)[0])
 
 def stockfish_move_time(board):
     engine = chess.engine.SimpleEngine.popen_uci("/opt/homebrew/bin/stockfish")
@@ -48,8 +48,8 @@ def randomMove(board):
     return random.choice(moves)
 
 def initializeBots():
-    botA = Bot(findBestMove_Arjun_depth2)
-    botB = Bot(stockfish_move_depth)
+    botA = Bot(findBestMove_Arjun_depth3)
+    botB = Bot(stockfish_move_time)
     return botA, botB
 
 def simGame(botA, botB, window):

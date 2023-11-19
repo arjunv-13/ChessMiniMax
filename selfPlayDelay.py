@@ -89,7 +89,7 @@ def main():
             sound = normalSound
         pg.mixer.Sound.play(sound)
         pg.mixer.music.stop()
-        time.sleep(1)
+        time.sleep(0.5)
     printCheckmate(WIN, boardView)
     print("Result:", board.result())
 
