@@ -218,7 +218,6 @@ def findBestMove(board, main_depth, capture_search_depth, augment_depth, varianc
     with chess.polyglot.open_reader("./openings/baron30.bin") as reader:
         l = [entry for entry in reader.find_all(board)]
     if l:
-        print("Opening found!")
         return [str(random.choice(l).move), 0, 0]
     ply = board.fullmove_number/2
     num_pieces = len(board.piece_map())

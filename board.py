@@ -2,9 +2,11 @@ import pygame as pg
 import time
 from evalOpening import toArray
 import chess
+import math
 
 WIDTH, HEIGHT = 750, 750
 WHITE = (255, 255, 255)
+GREY = (127, 127, 127)
 BLACK = (0, 0, 0)
 LIGHT = (242, 232, 218)
 DARK = (128, 128, 128)
@@ -27,7 +29,7 @@ font = pg.font.SysFont(None, 80)
 pg.display.set_caption("Chess!")
 
 def draw_window(window):
-    window.fill(WHITE)
+    #window.fill(WHITE)
     row = 0
     box_width = (WIDTH - 30)/8
     box_height = (HEIGHT - 30)/8
@@ -184,6 +186,49 @@ def getPromotion(window, board):
         pg.display.update()
     return "q"
 
+def getEvalPercentFull(eval):
+    if eval == -1000:
+        return 1
+    if eval == 1000:
+        return 0
+    if eval > 10:
+        return 0.05
+    if eval < -10:
+        return 0.95
+    if eval < 0:
+        return 0.5 + math.sqrt(-eval/62.5)
+    else:
+        return 0.5 - math.sqrt(eval/62.5)
+
+def getEvalText(eval):
+    font = pg.font.SysFont(None, 30)
+    if eval == 1000:
+        return font.render("M+", True, BLACK)
+    if eval == -1000:
+        return font.render("M-", True, WHITE)
+    if eval < 0:
+        return font.render(str(eval), True, WHITE)
+    if eval > 0:
+        return font.render (f"+{eval}", True, BLACK)
+    return font.render ("0.0", True, WHITE)
+
+def drawEvalBar(eval_window, eval):
+    eval_window.fill(WHITE)
+    EVAL_HEIGHT = 600
+    EVAL_WIDTH = 100
+    BUFFER = 15
+    percent_full = getEvalPercentFull(eval)
+    bar_height = percent_full * (EVAL_HEIGHT - BUFFER * 2)
+    pg.draw.rect(eval_window, BLACK, pg.Rect(BUFFER, BUFFER, EVAL_WIDTH - BUFFER * 2, bar_height))
+    pg.draw.rect(eval_window, BLACK, pg.Rect(BUFFER, BUFFER, EVAL_WIDTH - BUFFER * 2, EVAL_HEIGHT - BUFFER * 2), 1)
+    pg.draw.rect(eval_window, GREY, pg.Rect(BUFFER, EVAL_HEIGHT/2 - 3, EVAL_WIDTH - BUFFER * 2, 6))
+    text = getEvalText(eval)
+    if eval <= 0:
+        text_offset = -20
+    else:
+        text_offset = 20
+    eval_window.blit(text, (EVAL_WIDTH/2 - text.get_width()/2, EVAL_HEIGHT/2 - text.get_height()/2 + text_offset))
+    pg.display.update()
 
 def drawLegalMoves(window, moves):
     box_width = (WIDTH - 30)/8
@@ -233,15 +278,7 @@ def playerMoveGUI(board, window):
                     if selected_end_squares[square]:
                         move += getPromotion(window, board)
                     return board.san(board.parse_uci(move))         
-        pg.display.update()
-
-        """move = input("Input your move in standard algebraic notation (like Nf6): ")
-        try:
-            standard = board.san(board.parse_san(move))
-            board.push_san(move)
-            valid = True
-        except:
-            print("Invalid move")"""             
+        pg.display.update()           
 
 
 def getSquare(x, y):
@@ -252,35 +289,3 @@ def getSquare(x, y):
     letter = chr(int((x - 15)//box_width) + 97)
     number = str(int(8 - (y - 15)//box_height))
     return letter + number
-
-
-def main():
-    clock = pg.time.Clock()
-    run = True
-    keyPressed = False
-
-    draw_window(WIN)
-    draw_pieces(WIN, board)
-    getPromotion(WIN, board)
-    pg.display.update()
-    time.sleep(2)
-    #playerMoveGUI(board,WIN)
-    """while run:
-        clock.tick(FPS)
-        draw_window(WIN)
-        draw_pieces(WIN, board)
-        
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                run = False
-            if event.type == pg.MOUSEBUTTONUP:
-                x, y = pg.mouse.get_pos()
-                print(getSquare(x, y))
-
-
-        pg.display.update()
-    
-    pg.quit()"""
-
-if __name__ == "__main__":
-    main()

@@ -3,7 +3,9 @@ import chess
 from engine import findBestMove, setDepthReturn
 #from noTreeEngine import findBestMove
 from board import printBoard, printCheckmate
+from gameInfoBar import drawInfoBar
 import time
+import chess.engine
 
 normalSound = pg.mixer.Sound("chessPieces/move.mp3")
 captureSound = pg.mixer.Sound("chessPieces/capture.mp3")
@@ -11,7 +13,8 @@ castleSound = pg.mixer.Sound("chessPieces/castle.mp3")
 promoteSound = pg.mixer.Sound("chessPieces/promote.mp3")
 checkSound = pg.mixer.Sound("chessPieces/check.mp3")
 
-WIDTH, HEIGHT = 750, 750
+WHITE = (255, 255, 255)
+WIDTH, HEIGHT = 1000, 750
 FPS = 60
 WIN = pg.display.set_mode((WIDTH, HEIGHT))
 pg.init()
@@ -52,13 +55,25 @@ def playerMove(board):
 def main():
     board = chess.Board()
     halfMoveCounter = 0
+    WIN.fill(WHITE)
 
     playerWhite = True
     time.sleep(1.5)
     main_depth, capture_depth, variance = setDepthReturn()
+    whitePlayer = "Engine"
+    blackPlayer = "Engine"
+    curr_eval = 0
 
     while not board.is_game_over():
         printBoard(WIN, board)
+        engine = chess.engine.SimpleEngine.popen_uci("/opt/homebrew/bin/stockfish")
+        curr_eval = round(engine.analyse(board, chess.engine.Limit(time=0.1))['score'].white().score(mate_score=100000)/100, 2)
+        if curr_eval > 500:
+            curr_eval = 1000
+        elif curr_eval < -500:
+            curr_eval = -1000
+        engine.quit()
+        drawInfoBar(WIN, curr_eval, whitePlayer, blackPlayer)
         
         if halfMoveCounter % 2 != playerWhite:
             print("Thinking...")
@@ -83,7 +98,9 @@ def main():
         halfMoveCounter += 1
         pg.mixer.Sound.play(sound)
         pg.mixer.music.stop()
+        curr_eval = playedEval
     printCheckmate(WIN, board)
+    drawInfoBar(WIN, curr_eval, whitePlayer, blackPlayer)
     print("Game Over")
     print("Result:", board.result())
     time.sleep(2)
