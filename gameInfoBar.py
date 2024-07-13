@@ -56,7 +56,6 @@ def drawEvalBar(eval_window, eval):
     else:
         text_offset = 20
     eval_window.blit(text, (BOARD_BUFFER + EVAL_WIDTH/2 - text.get_width()/2, EVAL_HEIGHT/2 - text.get_height()/2 + text_offset))
-    pg.display.update()
 
 def drawPlayerNames(window, white_name, black_name):
     LEFT_BUFFER = 100
@@ -67,7 +66,6 @@ def drawPlayerNames(window, white_name, black_name):
     b = font.render(f"Black: {black_name}", True, BLACK)
     window.blit(b, (BOARD_BUFFER + LEFT_BUFFER, VERTICAL_BUFFER))
     window.blit(w, (BOARD_BUFFER + LEFT_BUFFER, TOTAL_HEIGHT - VERTICAL_BUFFER - w.get_height()))
-    pg.display.update()
 
 def drawPlayerTimes(window, white_time, black_time):
     LEFT_BUFFER = 100
@@ -78,10 +76,10 @@ def drawPlayerTimes(window, white_time, black_time):
     b = font.render(f"Black: {black_time}", True, BLACK)
     window.blit(b, (BOARD_BUFFER + LEFT_BUFFER, VERTICAL_BUFFER))
     window.blit(w, (BOARD_BUFFER + LEFT_BUFFER, TOTAL_HEIGHT - VERTICAL_BUFFER - w.get_height()))
-    pg.display.update()
 
 def drawInfoBar(window, eval, white_name, black_name, white_time, black_time):
     pg.draw.rect(window, WHITE, pg.Rect(BOARD_BUFFER, 0, 250, 750))
     drawEvalBar(window, eval)
     drawPlayerNames(window, white_name, black_name)
     drawPlayerTimes(window, white_time, black_time)
+    pg.display.update()

@@ -1,6 +1,7 @@
 import pygame as pg
 import time
 from evalOpening import toArray
+from gameInfoBar import drawInfoBar
 import chess
 import math
 
@@ -22,7 +23,7 @@ GREEN = (52, 178, 52)
 board = chess.Board()
 
 
-FPS = 60
+FPS = 10
 WIN = pg.display.set_mode((WIDTH, HEIGHT))
 pg.init()
 font = pg.font.SysFont(None, 80)
@@ -239,7 +240,7 @@ def drawLegalMoves(window, moves):
         circle_center = (x, y)
         pg.draw.circle(window, RED, circle_center, box_width/5)
 
-def playerMoveGUI(board, window):
+def playerMoveGUI(board, window, curr_eval, whitePlayer, blackPlayer, whiteTimer, blackTimer):
     map = board.piece_map()
     legal_moves = {}
     for move in board.legal_moves:
@@ -250,7 +251,6 @@ def playerMoveGUI(board, window):
         else:
             legal_moves[start_square] = [uci_move]
     valid_start_squares = set(legal_moves.keys())
-    #print(valid_start_squares)
     moved = False
     clock = pg.time.Clock()
     square = ""
@@ -263,7 +263,11 @@ def playerMoveGUI(board, window):
         draw_prev_move(window, board)
         draw_pieces(window, board)
         draw_highlights(window, selected)
-        drawLegalMoves(window, selected_possible_moves)         
+        drawLegalMoves(window, selected_possible_moves)
+        
+        white_time = whiteTimer.get_time_string()
+        black_time = blackTimer.get_time_string()
+        drawInfoBar(WIN, curr_eval, whitePlayer, blackPlayer, white_time, black_time)         
         
         for event in pg.event.get():
             if event.type == pg.MOUSEBUTTONUP:

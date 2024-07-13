@@ -6,16 +6,23 @@ class Timer:
         self.increment = increment
         self.time_used = 0
         self.start_time = 0
+        self.on = False
 
     def start(self):
         self.start_time = time.time()
+        self.on = True
 
     def stop(self):
         self.time_used += time.time() - self.start_time
         self.time_used -= self.increment
+        self.on = False
 
     def get_time_left(self):
-        return self.time_limit - self.time_used
+        if self.on:
+            curr_move_time = time.time() - self.start_time
+        else:
+            curr_move_time = 0
+        return self.time_limit - self.time_used - curr_move_time
     
     def get_time_string(self):
         time_left = self.get_time_left()

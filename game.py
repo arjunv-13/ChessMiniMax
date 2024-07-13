@@ -105,7 +105,14 @@ def main():
         
         if halfMoveCounter % 2 != playerWhite:
             playerTimer.start()
-            move = playerMoveGUI(board, WIN)
+            if playerWhite:
+                whiteTimer = playerTimer
+                blackTimer = engineTimer
+            else:
+                whiteTimer = engineTimer
+                blackTimer = playerTimer
+
+            move = playerMoveGUI(board, WIN, curr_eval, whitePlayer, blackPlayer, whiteTimer, blackTimer)
             board.push_san(move)
             playerTimer.stop()
             if playerWhite:
